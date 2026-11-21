@@ -1,0 +1,106 @@
+#stage { isolation: isolate; }
+body[data-zone=service] :is(.diagnostics-only, #diagnostic-hotspots, #diagnostic-views, #scene-message, #wall-view, #comparison-toolbar, #axle-repeater, #lighting-references),
+body[data-zone=diagnostics] .service-only { display: none !important; }
+.workshop-nav { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
+.station-group { display: flex; flex-wrap: wrap; gap: 3px; padding: 4px; border: 1px solid var(--line); border-radius: 10px; background: #e9ede5; }
+.station-group :is(button, a) { display: inline-flex; align-items: center; gap: 3px; padding: 5px 10px; min-height: 36px; border: 1px solid transparent; border-radius: 6px; background: transparent; color: var(--ink); font: inherit; font-size: .87rem; text-decoration: none; }
+.station-group .bay-overview { font-weight: 750; border-color: #bbcabb; background: #f7f9f1; }
+.station-group :is(button, a):hover { border-color: #729277; }
+.station-group :is([aria-pressed=true], [aria-current=location]) { background: #205248; border-color: #205248; color: white; font-weight: 700; }
+body[data-zone=diagnostics] .scene-panel:has(#scene[hidden]) .camera-actions { display: none; }
+.camera-guide { display: inline-flex; align-items: center; gap: 4px; font-size: .8rem; cursor: pointer; }
+.camera-guide input { accent-color: #b9d98f; }
+#workshop-loading { position: absolute; inset: 0; z-index: 4; display: grid; place-content: center; margin: 0; background: var(--stage); color: #dceada; }
+.axle-repeater { position: absolute; top: 10px; left: 10px; width: clamp(215px, 34%, 320px); aspect-ratio: 768 / 420; padding: 0; border: 3px solid #354944; border-radius: 7px; box-shadow: 0 3px 12px #18282055; overflow: hidden; cursor: zoom-in; }
+.axle-repeater[aria-pressed=true] { width: min(75%, 530px); cursor: zoom-out; z-index: 2; }
+.measured-wall :is(#headlamp-actions, #reset-headlamp, #beam-coupling, .diagnostic-workflow, #headlamp-aim-inputs, #headlamp-aim-next, .diagnostic-form label:not(:has(#wall-distance)), [data-d=beamNote]) { display: none; }
+#scene-message { position: absolute; inset: 12px auto auto 12px; margin: 0; padding: 6px 10px; border-radius: 6px; color: #e6f4e2; background: #172823e8; }
+#diagnostic-hotspots { position: absolute; inset: 0; pointer-events: none; }
+#diagnostic-hotspots button:not(.actuator-cue) { position: absolute; transform: translate(-50%,-50%); pointer-events: auto; background: #1b302b; border: 2px solid var(--accent); border-radius: 7px; padding: 4px 8px; color: #f8ffe9; font-size: .75rem; font-weight: 750; white-space: nowrap; min-height: 28px; }
+#diagnostic-hotspots button:not(.actuator-cue):is(:hover, :focus-visible) { background: var(--accent); color: var(--ink); }
+#diagnostic-hotspots button.actuator-cue { background: transparent; min-height: 0; padding: 0; pointer-events: auto; }
+#diagnostic-hotspots button.actuator-cue:is(:hover, :focus-visible) { background: #d6f78935; }
+#diagnostic-hotspots .aim-guide { background: #152624e8; font-size: .72rem; }
+#lamp-progress { margin: 0 0 5px; color: #4b655a; font-weight: 700; }
+#headlamp-controls { gap: 10px; padding: 7px 12px; border-bottom: 1px solid #395449; }
+#headlamp-start, #headlamp-progress-action { background: var(--accent); color: var(--ink); }
+#headlamp-controls:has(#headlamp-progress-action:not([hidden])) #headlamp-start { background: transparent; color: inherit; }
+#headlamp-power button[data-recommended=true] { background: var(--accent); color: var(--ink); }
+#diagnostic-hotspots .mounted-target { position: absolute; transform: translate(-50%,-50%); padding: 2px 6px; border-radius: 4px; background: #17372c; color: #d9faac; font-size: .72rem; font-weight: 750; white-space: nowrap; }
+.diagnostic-workflow { display: flex; flex-wrap: wrap; gap: 7px; }
+.diagnostic-form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: end; gap: 10px; margin: 10px 0; }
+.diagnostic-form label, .diagnostic-slider { display: grid; grid-template-columns: 1fr auto; gap: 3px 6px; font-size: .82rem; font-weight: 650; align-items: baseline; }
+.diagnostic-form select, .diagnostic-form input, .diagnostic-slider input { grid-column: 1 / -1; width: 100%; min-width: 0; accent-color: #64833b; }
+.aim-adjustment { min-width: 0; }
+.aim-step-buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 4px; }
+.aim-step-buttons button { min-height: 34px; padding: 4px; font-size: .75rem; }
+.aim-step-buttons button[data-recommended=true]:enabled { background: var(--accent); color: var(--ink); border-color: var(--accent); }
+#headlamp-aim-next { margin: 10px 0 0; color: #d6f789; font-size: .86rem; font-weight: 750; }
+#headlamp-aim-inputs label { grid-template-columns: minmax(0, 1fr) auto; }
+#headlamp-aim-inputs output { text-align: right; white-space: nowrap; }
+.diagnostic-reset, .diagnostic-slider { margin-top: 12px; }
+.diagnostic-table { margin-top: 9px; width: 100%; border-collapse: collapse; font-size: .86rem; }
+.diagnostic-table :is(th, td) { padding: 7px 3px; text-align: right; border-bottom: 1px solid #395449; white-space: nowrap; }
+.diagnostic-table tr > :first-child { text-align: left; }
+.diagnostic-table td { color: #deebe0; font-family: ui-monospace, monospace; }
+.diagnostic-table td[data-verdict=ok] { color: #baff62; font-weight: 750; }
+.diagnostic-table td[data-verdict=correct] { color: #ff7771; font-weight: 750; }
+.diagnostic-table .toe-direction { display: block; font: 650 .68rem/1.3 system-ui; color: #fff2df; }
+.diagnostic-table tfoot :is(th,td) { font: 750 .76rem/1.35 system-ui; color: #edf7e8; background: #203e36; }
+.diagnostic-table tfoot .reference-heading td { padding-top: 10px; text-align: left; color: #d9faac; }
+.diagnostic-profile { margin: 5px 0 0; color: #cddbd4; font-size: .76rem; }
+#diagnostic-hotspots button[data-recommended=true] { background: #d9fa98; border-color: #f1ffd7; color: #132a21; box-shadow: 0 0 0 2px #263e24; }
+.diagnostic-readout-note { margin: 10px 0 0; font-size: .8rem; color: #d7ebd9; }
+.diagnostic-beam-values { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+.diagnostic-beam-values output { font-size: clamp(.77rem, 1.4vw, 1.18rem); }
+#beamsetter-preview { margin: 10px 0 0; }
+#beamsetter-preview canvas { display: block; width: 100%; height: auto; border: 1px solid #49715e; border-radius: 6px; }
+#beamsetter-preview-caption { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 5px; font-size: .76rem; }
+#beamsetter-preview-caption > :first-child { color: #d6f789; }
+#beamsetter-preview-state[data-verdict=correct] { color: #ff817b; }
+:is(.diagnostic-beam-values, #headlamp-aim-inputs) [data-verdict=correct] { color: #ff817b; }
+:is(.diagnostic-beam-values, #headlamp-aim-inputs) [data-verdict=ok] { color: #bdff77; }
+.aim-target, .aim-direction { display: block; font-size: .76rem; line-height: 1.35; }
+.aim-target { margin-top: 4px; color: #dfece1; }
+.aim-direction { font-weight: 750; }
+#diagnostic-hotspots [aria-pressed=true]:not(.actuator-cue) { background: var(--accent); color: var(--ink); }
+#diagnostic-hotspots [aria-pressed=false]:not(.actuator-cue):hover { background: #345447; color: #f8ffe9; }
+#stage #scene.aim-screw-active { cursor: ew-resize; }
+#headlamp-mode-status { display: inline-flex; align-items: center; gap: 7px; font-weight: 700; }
+#headlamp-mode-icon { width: 29px; height: 18px; }
+#headlamp-return { background: var(--accent); color: var(--ink); padding: 5px 9px; min-height: 32px; }
+#headlamp-method { font-size: .82rem; line-height: 1.45; }
+#wall-view { display: grid; grid-template-rows: auto minmax(0, 1fr) auto; padding: 11px; gap: 7px; background: #192b26; color: #edf4eb; border-radius: 8px; }
+#stage #wall-view { position: absolute; inset: 0; overflow: auto; }
+body[data-zone=diagnostics] #stage:has(#wall-view:not([hidden])) { height: clamp(330px, 36vw, 460px); }
+.wall-tools { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 4px 12px; font-size: .85rem; }
+.wall-tools label { display: flex; align-items: center; gap: 7px; }
+.wall-tools select { width: auto; min-height: 32px; }
+.wall-tools button { min-height: 32px; padding: 3px 8px; }
+#wall-pair { display: grid; align-content: center; align-items: center; gap: 12px; }
+#wall-pair:has(#reference-beam:not([hidden])) { grid-template-columns: repeat(2,minmax(0,1fr)); }
+#wall-pair figure { margin: 0; min-width: 0; }
+#wall-pair figcaption { font-size: .84rem; color: #f0f5eb; margin-bottom: 5px; }
+#wall-pair canvas, #stage #wall-pair canvas { position: static; display: block; width: 100%; height: auto; border: 1px solid #437064; border-radius: 6px; cursor: crosshair; }
+#comparison-toolbar { padding: 7px 12px; border-bottom: 1px solid #395449; }
+#comparison-toolbar label { align-self: center; padding-right: 7px; font-size: .83rem; font-weight: 700; }
+body[data-zone=diagnostics] .bench:has(#comparison-toolbar:not([hidden])) { grid-template-columns: minmax(0, 1fr); }
+body[data-zone=diagnostics] .scene-panel:has(#comparison-toolbar:not([hidden])) #stage:not([data-walking=true]) {
+  height: clamp(265px, 44vw, 640px);
+}
+#road-reach-table { max-width: 610px; }
+#road-reach-table[data-mode=low] tr > :nth-child(2), #road-reach-table[data-mode=high] tr > :nth-child(3) { color: #d6f789; font-weight: 750; }
+.diagnostic-caption { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 3px 10px; color: #d7eadc; font-size: .77rem; margin: 0; }
+.diagnostic-reference-grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(160px,1fr)); gap: 12px; }
+.diagnostic-reference-grid figure { margin: 0; }
+.diagnostic-reference-grid img { max-width: 100%; width: 100%; height: 140px; object-fit: contain; background: #e7ece2; border-radius: 8px; }
+.measured-reference { max-width: 670px; }
+.measured-reference td { color: var(--ink); }
+.measured-reference :is(td, th) { border-bottom-color: var(--line); }
+@media (max-width: 550px) {
+  .axle-repeater { width: min(53%, 210px); left: 5px; top: 5px; }
+  #wall-pair:has(#reference-beam:not([hidden])) { grid-template-columns: 1fr; }
+  body[data-zone=diagnostics] #stage:has(#wall-view:not([hidden]) #reference-beam:not([hidden])) { height: clamp(410px, 104vw, 570px); }
+  .wall-tools label { font-size: .78rem; }
+  #diagnostic-hotspots button { padding: 3px 5px; font-size: .65rem; }
+}

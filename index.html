@@ -1,0 +1,458 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#142421">
+  <title>Service bay · AutoMethods</title>
+  <link rel="icon" href="automethods-mark.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="site.css?v=6">
+  <link rel="stylesheet" href="diagnostics.css?v=14">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "./vendor/three/three.module.min.js",
+        "./app.js": "./app.js?v=7",
+        "./diagnostics.js": "./diagnostics.js?v=24",
+        "./workshop.js": "./workshop.js?v=13",
+        "./diagnostic-axle.js": "./diagnostic-axle.js?v=6",
+        "./diagnostic-beams.js": "./diagnostic-beams.js?v=11",
+        "./diagnostic-model.js": "./diagnostic-model.js?v=14",
+        "./diagnostic-scene.js": "./diagnostic-scene.js?v=20",
+        "./diagnostic-comparison.js": "./diagnostic-comparison.js?v=3",
+        "./workshop-walk.js": "./workshop-walk.js?v=2",
+        "./diagnostic-porsche.js": "./diagnostic-porsche.js?v=9"
+      }
+    }
+  </script>
+  <script type="module">
+    import('./app.js').catch(error => {
+      console.error('Basic Vehicle Service Lab startup failed.', error);
+      const status = document.getElementById('workshop-loading');
+      status.textContent = navigator.language.startsWith('uk')
+        ? 'Не вдалося завантажити майстерню. Оновіть сторінку, щоб повторити спробу.'
+        : 'The workshop could not load. Reload the page to try again.';
+      status.hidden = false;
+    });
+  </script>
+</head>
+<body data-zone="service">
+  <header class="topbar">
+    <a class="brand" href="https://automethods.com/">
+      <svg class="brand-mark" viewBox="0 0 64 64" width="34" height="34" fill="none" stroke-width="1" stroke-linejoin="round" aria-hidden="true" focusable="false">
+        <!-- AutoMethods outline from My_books/shared-ui/assets/favicon.svg. -->
+        <g stroke="var(--brand-outline)">
+          <path d="M 48.426 51.505 A 25.5 25.5 0 0 0 57.241 35.626 Q 57.311 35.100 57.842 35.100 L 60.797 35.100 Q 61.337 35.100 61.388 34.563 A 29.5 29.5 0 0 0 61.388 29.437 Q 61.337 28.900 60.797 28.900 L 57.842 28.900 Q 57.311 28.900 57.241 28.374 A 25.5 25.5 0 0 0 37.314 7.060 Q 36.941 6.983 36.849 6.614 L 35.984 3.153 Q 35.885 2.757 35.480 2.706 A 29.5 29.5 0 0 0 28.520 2.706 Q 28.115 2.757 28.016 3.153 L 27.151 6.614 Q 27.059 6.983 26.686 7.060 A 25.5 25.5 0 0 0 6.759 28.374 Q 6.689 28.900 6.158 28.900 L 3.203 28.900 Q 2.663 28.900 2.612 29.437 A 29.5 29.5 0 0 0 2.612 34.563 Q 2.663 35.100 3.203 35.100 L 6.158 35.100 Q 6.689 35.100 6.759 35.626 A 25.5 25.5 0 0 0 15.574 51.505 Q 15.868 51.748 15.775 52.117 L 14.910 55.579 Q 14.811 55.975 15.144 56.210 A 29.5 29.5 0 0 0 19.769 58.845 Q 20.413 59.129 20.584 58.446 L 21.223 55.892 Q 21.398 55.191 22.058 55.482 A 25.5 25.5 0 0 0 41.942 55.482 Q 42.602 55.191 42.777 55.892 L 43.416 58.446 Q 43.587 59.129 44.231 58.845 A 29.5 29.5 0 0 0 48.856 56.210 Q 49.189 55.975 49.090 55.579 L 48.225 52.117 Q 48.132 51.748 48.426 51.505 Z"/>
+          <path d="M 28.157 28.154 L 31.794 13.606 Q 31.820 13.501 31.928 13.500 A 18.5 18.5 0 0 1 32.072 13.500 Q 32.180 13.501 32.206 13.606 L 35.843 28.154 Q 36.030 28.900 35.261 28.900 L 28.739 28.900 Q 27.970 28.900 28.157 28.154 Z"/>
+          <path d="M 23.248 47.788 L 26.307 35.554 Q 26.420 35.100 26.889 35.100 L 37.111 35.100 Q 37.580 35.100 37.693 35.554 L 40.752 47.788 Q 40.864 48.238 40.454 48.455 A 18.5 18.5 0 0 1 23.546 48.455 Q 23.136 48.238 23.248 47.788 Z"/>
+          <path d="M 50.106 35.798 A 18.5 18.5 0 0 1 46.896 42.970 Q 46.169 43.895 45.884 42.754 L 44.157 35.846 Q 43.970 35.100 44.739 35.100 L 49.528 35.100 Q 50.238 35.100 50.106 35.798 Z"/>
+          <path d="M 49.528 28.900 L 42.889 28.900 Q 42.420 28.900 42.307 28.446 L 39.190 15.978 Q 38.905 14.837 39.981 15.310 A 18.5 18.5 0 0 1 50.106 28.202 Q 50.238 28.900 49.528 28.900 Z"/>
+          <path d="M 13.894 28.202 A 18.5 18.5 0 0 1 24.019 15.310 Q 25.095 14.837 24.810 15.978 L 21.693 28.446 Q 21.580 28.900 21.111 28.900 L 14.472 28.900 Q 13.762 28.900 13.894 28.202 Z"/>
+          <path d="M 14.472 35.100 L 19.261 35.100 Q 20.030 35.100 19.843 35.846 L 18.116 42.754 Q 17.831 43.895 17.104 42.970 A 18.5 18.5 0 0 1 13.894 35.798 Q 13.762 35.100 14.472 35.100 Z"/>
+        </g>
+        <!-- Crossbar endpoints from My_books/CEA/web/assets/favicon.svg. -->
+        <path d="M 18 56 L 28.25 15 C 28.75 13 30.5 7.8 32 5 C 33.5 7.8 35.25 13 35.75 15 L 46 56 M 4.5 32 H 59.5"
+          stroke="var(--brand-center)" stroke-linecap="round" stroke-linejoin="miter"/>
+      </svg>
+      <span data-t="brand">AutoMethods</span>
+    </a>
+    <span class="lab-name" data-t="lab">Basic Vehicle Service Lab</span>
+    <div class="languages" role="group" aria-label="Language" data-label="language">
+      <button type="button" data-language="en" lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-language="uk" lang="uk" aria-pressed="false">УК</button>
+    </div>
+    <details id="project-about" class="project-about">
+      <summary data-t="aboutProject">About the project</summary>
+      <div class="about-content">
+        <h2 data-t="contributors">Contributors</h2>
+        <p><strong data-t="lomakin">V. O. Lomakin</strong>, <span data-t="lomakinQualification">PhD in Engineering</span></p>
+        <p><strong data-t="melnychuk">S. V. Melnychuk</strong>, <span data-t="melnychukQualification">PhD in Engineering, Associate Professor</span></p>
+        <p class="about-note" data-t="aiAssistance">AI assistance with writing, translation, programming and verification (GPT-6 family).</p>
+        <p class="about-note" data-t="projectCopyright">© 2026 Project authors.</p>
+      </div>
+    </details>
+  </header>
+  <main>
+    <div class="intro">
+      <h1 id="view-title">Service bay</h1>
+      <p id="view-intro">Operate the lift, wheel balancer, and tyre changer in one bay.</p>
+    </div>
+    <nav class="workshop-nav" aria-label="Workshop stations" data-label="view">
+      <div class="station-group">
+        <button type="button" class="bay-overview" id="bay-view" aria-pressed="true" data-t="bay">Service bay</button>
+        <button type="button" id="changer-view" aria-pressed="false"><span aria-hidden="true">1 · </span><span data-t="changer">Tyre changer</span></button>
+        <button type="button" id="balancer-view" aria-pressed="false"><span aria-hidden="true">2 · </span><span data-t="balancer">Balancer</span></button>
+        <button type="button" id="lift-view" aria-pressed="false"><span aria-hidden="true">3 · </span><span data-t="lift">Two-post lift</span></button>
+      </div>
+      <div class="station-group">
+        <a class="bay-overview" href="diagnostics.html" id="diagnostic-bay-link" data-t="diagnosticBay">Diagnostics bay</a>
+        <button type="button" data-station="alignment" aria-pressed="false" data-d="alignment">Wheel alignment</button>
+        <button type="button" data-station="headlamp" aria-pressed="false" data-d="headlamp">Headlamp aiming</button>
+      </div>
+    </nav>
+    <div class="bench">
+      <section class="scene-panel" aria-label="Workshop view" data-label="workshop">
+        <div class="view-bar">
+          <div id="diagnostic-views" hidden>
+            <div id="headlamp-views" class="views" hidden>
+              <button type="button" data-light-view="rig" aria-pressed="true" data-d="beamsetterView">Beamsetter</button>
+              <button type="button" data-light-view="cabin" aria-pressed="false" data-d="cabinView">Cabin</button>
+              <button type="button" data-light-view="beams" aria-pressed="false" data-d="beamsView">3D beams</button>
+              <button type="button" data-light-view="wall" aria-pressed="false" data-d="wall">Aiming wall</button>
+              <button type="button" data-light-view="road" aria-pressed="false" data-d="road">Beam comparison</button>
+            </div>
+            <div id="alignment-views" class="views" hidden>
+              <button type="button" data-axle-view="false" aria-pressed="true" data-d="rig">3D stand</button>
+              <button type="button" data-axle-view="true" aria-pressed="false" data-d="inspectionPit">Inspection pit</button>
+              <button type="button" id="view-alignment-monitor" aria-pressed="false" data-d="monitor">Monitor</button>
+            </div>
+          </div>
+          <div class="camera-actions">
+            <button type="button" class="diagnostics-only" id="headlamp-return" hidden></button>
+            <label class="camera-guide"><input id="follow-actions" type="checkbox" checked><span data-t="followActions">Follow actions</span></label>
+            <button type="button" id="zoom-out" data-label="zoomOut" aria-label="Zoom out" hidden>−</button>
+            <button type="button" id="zoom-in" data-label="zoomIn" aria-label="Zoom in" hidden>+</button>
+            <button type="button" id="rotate-view" data-t="rotateView">Change view</button>
+            <button type="button" id="face-pit-stairs" data-t="facePitStairs" hidden>Face stairs</button>
+            <button type="button" class="diagnostics-only" id="diagnostic-reset-view" data-d="resetView">Reset view</button>
+          </div>
+        </div>
+        <div id="headlamp-controls" class="views diagnostics-only" hidden>
+          <button type="button" id="headlamp-progress-action" hidden></button>
+          <button type="button" id="headlamp-start" data-d="startAiming">Start adjustment</button>
+          <div class="views" id="headlamp-power" role="group" aria-label="Headlamp switches"></div>
+        </div>
+        <div id="comparison-toolbar" class="views" role="group" aria-label="All five cars" hidden>
+          <label class="camera-guide"><input type="checkbox" id="comparison-lights"><span data-d="comparisonLights">Lights on for all five cars</span></label>
+          <button type="button" data-comparison-beam="low" aria-pressed="false" data-d="low">Dipped beam</button>
+          <button type="button" data-comparison-beam="high" aria-pressed="false" data-d="high">Main beam</button>
+        </div>
+        <div id="stage" tabindex="0" data-label="workshop">
+          <p id="workshop-loading" role="status" data-t="loadingWorkshop">Preparing workshop…</p>
+          <canvas id="scene" aria-hidden="true" hidden></canvas>
+          <div id="diagnostic-hotspots"></div>
+          <div id="walk-controls" role="group" aria-label="Walk controls" data-label="walkControls" hidden>
+            <button type="button" data-walk-direction="forward" data-label="walkForward" aria-label="Walk forward">↑</button>
+            <button type="button" data-walk-direction="left" data-label="walkLeft" aria-label="Walk left">←</button>
+            <button type="button" data-walk-direction="back" data-label="walkBack" aria-label="Walk back">↓</button>
+            <button type="button" data-walk-direction="right" data-label="walkRight" aria-label="Walk right">→</button>
+          </div>
+          <p id="scene-message" role="status" data-d="loading">Loading equipment…</p>
+          <button type="button" class="axle-repeater" id="axle-repeater" aria-pressed="false" hidden><canvas id="alignment-monitor" width="1536" height="840" role="img" aria-label="Live toe monitor"></canvas></button>
+          <canvas id="fallback" width="640" height="400" aria-hidden="true"></canvas>
+        </div>
+        <div class="scene-footer">
+          <span id="scene-status">Service bay</span>
+          <span id="headlamp-mode-status" class="diagnostics-only" role="status" hidden>
+            <canvas id="headlamp-mode-icon" width="64" height="40" aria-hidden="true"></canvas>
+            <span id="headlamp-mode-text"></span>
+          </span>
+          <span id="viewport-hint" data-t="viewHint">Drag to orbit</span>
+          <span id="walk-hint" data-t="walkHint" hidden>WASD or arrows to walk · Drag to look · Esc to stop</span>
+          <strong id="next-action" hidden></strong>
+        </div>
+      </section>
+      <aside class="controls service-only" aria-label="Equipment controls" data-label="controls">
+        <section class="instrument" aria-labelledby="instrument-heading">
+          <div class="instrument-heading">
+            <h2 id="instrument-heading">Tyre changer readout</h2>
+            <strong id="rpm" aria-label="Spin speed" data-label="spinSpeed" hidden>0 rpm</strong>
+            <strong id="changer-count" class="readout-meta" hidden></strong>
+          </div>
+          <div id="changer-readout">
+            <div class="instrument-reading">
+              <strong id="changer-step"></strong>
+              <p id="changer-status" role="status"></p>
+            </div>
+            <progress id="changer-progress" max="6" value="0" aria-label="Tyre removal progress" data-label="changerProgress"></progress>
+            <button id="changer-reset" type="button" class="secondary" data-t="reset" hidden>Reset exercise</button>
+          </div>
+          <div id="lift-instrument" hidden>
+            <div class="instrument-reading">
+              <span data-t="liftRise">Lift rise</span>
+              <output id="lift-readout" for="lift-height">0 mm</output>
+              <p id="lift-motion"></p>
+            </div>
+          </div>
+          <div id="balance-instrument" hidden>
+            <progress id="spin-progress" max="8" value="0" aria-label="Spin progress" data-label="spinProgress"></progress>
+            <p id="reading-note" hidden></p>
+            <div class="planes">
+              <article class="plane" data-plane="inner">
+                <span class="plane-label" data-t="inner">Inner plane</span>
+                <strong id="inner-mass">—</strong>
+                <span id="inner-verdict" class="plane-verdict" hidden></span>
+                <span><span data-t="mark">Mark</span> <b id="inner-angle">—</b></span>
+                <button type="button" data-index="inner" disabled data-t="index">Turn to mark</button>
+              </article>
+              <article class="plane" data-plane="outer">
+                <span class="plane-label" data-t="outer">Outer plane</span>
+                <strong id="outer-mass">—</strong>
+                <span id="outer-verdict" class="plane-verdict" hidden></span>
+                <span><span data-t="mark">Mark</span> <b id="outer-angle">—</b></span>
+                <button type="button" data-index="outer" disabled data-t="index">Turn to mark</button>
+              </article>
+            </div>
+          </div>
+        </section>
+        <section id="lift-controls" class="panel" hidden>
+          <h2 id="lift-controls-heading">Two-post lift</h2>
+          <div id="lift-vehicle-row" class="lift-jog" hidden>
+            <button id="lift-vehicle" type="button" class="primary" data-t="liftVehicle">Start Model 3 exercise</button>
+          </div>
+          <p id="lift-vehicle-status" role="status" hidden></p>
+          <div id="lift-sequence" hidden>
+            <p class="lift-step"><strong id="lift-step-count"></strong> <strong id="lift-step-title"></strong></p>
+            <p id="lift-step-hint" role="status"></p>
+            <p id="lift-lock-status" class="lift-lock-status" hidden></p>
+            <div class="lift-jog">
+              <button id="lift-step-action" type="button" class="primary" hidden></button>
+              <button id="lift-free" type="button" class="secondary" data-t="liftFree" hidden>Free lift</button>
+            </div>
+            <div id="lift-guide-options" hidden>
+              <label><input id="lift-guides" type="checkbox" checked> <span data-t="liftGuides">Show lift points</span></label>
+              <p class="lift-guide-legend"><span data-t="liftPadLegend">Body lift points</span><span data-t="liftBatteryLegend">Battery area · keep pads clear</span></p>
+            </div>
+            <p id="lift-training" data-t="liftTraining">Guided simulation. Use the vehicle and lift manuals for actual service.</p>
+          </div>
+          <div id="lift-inputs">
+            <input type="range" id="lift-height" min="0" max="1800" step="1" value="0" data-label="liftRise" aria-label="Lift rise">
+            <div class="lift-jog">
+              <button type="button" class="secondary" id="lift-up" data-t="raiseLift">Raise lift</button>
+              <button type="button" class="secondary" id="lift-down" data-t="lowerLift">Lower lift</button>
+            </div>
+          </div>
+          <div id="fork-controls" hidden>
+            <label for="fork-spread"><span data-t="forkSpread">Arm spread</span><output id="spread-readout" for="fork-spread">75%</output></label>
+            <input type="range" id="fork-spread" min="0" max="100" step="1" value="75">
+            <label for="fork-reach"><span data-t="forkReach">Arm extension</span><output id="reach-readout" for="fork-reach">75%</output></label>
+            <input type="range" id="fork-reach" min="0" max="100" step="1" value="75">
+          </div>
+        </section>
+        <div id="balance-controls">
+          <section class="panel setup" aria-labelledby="setup-heading">
+            <h2 id="setup-heading" data-t="setup">Mount &amp; measure</h2>
+            <label class="scenario"><span data-t="exercise">Exercise</span>
+              <select id="exercise"><option value="guided" data-t="guided">Guided balance</option><option value="fault" data-t="fault">Wrong-plane weight</option></select>
+            </label>
+            <p id="exercise-note"></p>
+            <p id="work-order"></p>
+            <div class="dimensions">
+              <label><span data-t="diameter">Rim diameter</span><span class="unit-input"><input type="number" id="diameter" min="10" max="24" step="0.5"><span data-t="inches">in</span></span></label>
+              <label><span data-t="width">Rim width</span><span class="unit-input"><input type="number" id="width" min="3" max="14" step="0.5"><span data-t="inches">in</span></span></label>
+              <label><span data-t="offset">Gauge distance</span><span class="unit-input"><input type="number" id="offset" min="35" max="200" step="1"><span data-t="millimeters">mm</span></span></label>
+            </div>
+            <div class="setup-actions">
+              <button type="button" class="primary" id="mount" data-t="mount">Mount and clamp wheel</button>
+              <span id="mount-state" hidden></span>
+              <button type="button" class="secondary" id="reset" data-t="reset">Reset exercise</button>
+            </div>
+            <div class="machine-actions">
+              <button type="button" class="secondary" id="hood" disabled data-t="closeHood">Close guard</button>
+              <button type="button" class="primary" id="spin" disabled data-t="spin">Start spin</button>
+            </div>
+            <p id="status" role="status"></p>
+            <p id="stand-hint" data-t="standHint" hidden>Select the wheel to mount it, move the guard by its handle, and start the spin on the touchscreen.</p>
+          </section>
+          <section class="panel weights" aria-labelledby="weights-heading">
+            <h2 id="weights-heading" data-t="weights">Fit correction weights</h2>
+            <p id="weights-help">With the guard open, use Turn to mark to bring the selected plane’s marker to 12 o’clock.</p>
+            <div class="placement">
+              <label><span data-t="plane">Rim plane</span><select id="weight-plane"><option value="inner" data-t="inner">Inner plane</option><option value="outer" data-t="outer">Outer plane</option></select></label>
+              <label><span data-t="mass">Weight</span><span class="unit-input"><input type="number" id="mass" min="1" max="100" step="1" value="20"><span data-t="g">g</span></span></label>
+              <label><span data-t="atTop">Angle at 12 o’clock</span><span class="unit-input"><input type="number" id="angle" min="0" max="359" step="1" value="0"><span>°</span></span></label>
+              <button type="button" class="secondary" id="fit" disabled data-t="fit">Fit weight</button>
+            </div>
+            <ul id="weight-list" aria-label="Fitted weights" data-label="fitted"></ul>
+          </section>
+        </div>
+      </aside>
+      <aside class="controls diagnostics-only">
+        <section id="bay-panel" class="panel">
+          <h2 data-d="bay">Diagnostics bay</h2>
+          <p data-d="bayChoose">Select a stand in the scene or open an exercise below.</p>
+          <div class="diagnostic-workflow">
+            <button type="button" class="primary" data-open="alignment" data-d="alignment">Wheel alignment</button>
+            <button type="button" class="secondary" data-open="headlamp" data-d="headlamp">Headlamp aiming</button>
+          </div>
+        </section>
+
+        <div id="alignment-panel" class="controls" hidden>
+          <section class="instrument">
+            <h2 data-d="alignmentReadout">Alignment readout</h2>
+            <p class="diagnostic-profile" data-d="alignmentProfile">Model 3 (2017–2023) · Coil suspension · Without ballast</p>
+            <table class="diagnostic-table">
+              <thead><tr><th scope="col" data-d="wheel">Wheel</th><th scope="col" data-d="toe">Toe</th><th scope="col" data-d="camber">Camber</th><th scope="col" data-d="caster">Caster</th></tr></thead>
+              <tbody id="alignment-values"></tbody>
+              <tfoot id="alignment-limits">
+                <tr class="reference-heading"><td colspan="4" data-d="referenceRanges">Tesla reference ranges</td></tr>
+              </tfoot>
+            </table>
+            <p class="diagnostic-readout-note" data-d="toeSign">Positive toe is toe-in.</p>
+            <p id="alignment-totals" class="diagnostic-readout-note"></p>
+          </section>
+          <section class="panel">
+            <label class="scenario"><span data-d="exercise">Exercise</span><select id="alignment-exercise"><option value="four" data-d="four">Four-wheel alignment</option><option value="replacement" data-d="replacement">Left tie rod replaced</option><option value="crossed" data-d="crossed">Opposing front toe errors</option><option value="rear" data-d="rear">Rear toe out of tolerance</option></select></label>
+            <h2 id="alignment-step"></h2>
+            <p id="alignment-hint" role="status"></p>
+            <p id="alignment-before" hidden></p>
+            <div id="alignment-actions" class="diagnostic-workflow"></div>
+            <div id="toe-controls" class="diagnostic-form" hidden>
+              <label><span id="left-adjuster">Left tie rod</span><output id="left-turns-value"></output><input id="left-turns" type="range" min="-2.5" max="2.5" step=".05" value="0"></label>
+              <label><span id="right-adjuster">Right tie rod</span><output id="right-turns-value"></output><input id="right-turns" type="range" min="-2.5" max="2.5" step=".05" value="0"></label>
+            </div>
+            <label class="diagnostic-slider"><span data-d="cameraRail">Camera beam height</span><input id="camera-rail" type="range" min="-0.12" max="0.24" step=".01" value="0"></label>
+            <button type="button" class="secondary diagnostic-reset" id="reset-alignment" data-d="reset">Reset exercise</button>
+            <details class="diagnostic-reset">
+              <summary data-d="adjustmentNotes">How Model 3 alignment is adjusted</summary>
+              <p data-d="alignmentNote"></p>
+              <p><a href="https://service.tesla.com/docs/Model3/ServiceManual/en-us/GUID-F4CC6A2F-D7BE-4F76-ADED-F678050FC618.html" data-d="specSource">Tesla specifications</a> · <a href="https://service.tesla.com/docs/Model3/ServiceManual/en-us/GUID-13BE03F3-57D9-41B2-817E-C17E7545DE3A.html" data-d="procedureSource">Tesla adjustment procedure</a></p>
+            </details>
+          </section>
+        </div>
+
+        <div id="headlamp-panel" class="controls" hidden>
+          <section id="road-reach-panel" class="instrument" hidden>
+            <h2 data-d="roadReach">Simulated beam reach</h2>
+            <p class="diagnostic-readout-note" id="road-scope"></p>
+            <table class="diagnostic-table" id="road-reach-table">
+              <thead><tr><th scope="col" data-d="lampType">Headlamp</th><th scope="col" data-d="low">Dipped beam</th><th scope="col" data-d="high">Main beam</th></tr></thead>
+              <tbody></tbody>
+            </table>
+            <p class="diagnostic-readout-note" data-d="sameDipped">The LED and laser-assisted examples share the same dipped beam. Select Main beam to see the laser boost.</p>
+            <p class="diagnostic-readout-note"><span data-d="beamSources">Halogen and LED dipped beams use measured patterns. The other examples use simulated optics.</span> <a href="https://deepblue.lib.umich.edu/bitstream/handle/2027.42/154777/UMTRI-2019-5.pdf?sequence=1">UMTRI-2019-5</a></p>
+          </section>
+          <section class="instrument" id="beam-instrument">
+            <h2 id="beam-readout-title">Beamsetter readout</h2>
+            <div class="diagnostic-beam-values">
+              <div class="instrument-reading"><span id="beam-mark-label"></span><output id="beam-mark"></output>
+                <small id="beam-mark-target" class="aim-target"></small><small id="beam-mark-direction" class="aim-direction"></small></div>
+              <div class="instrument-reading"><span id="beam-probe-label"></span><output id="beam-lux"></output>
+                <small id="beam-lux-target" class="aim-target"></small><small id="beam-lux-direction" class="aim-direction"></small></div>
+            </div>
+            <p id="headlamp-aim-next" role="status" hidden></p>
+            <div class="diagnostic-form" id="headlamp-aim-inputs" hidden>
+              <div class="aim-adjustment">
+                <label><span data-d="horizontal">Horizontal aim</span><output id="aim-horizontal-value"></output><input type="range" id="aim-horizontal" min="-1.5" max="1.5" step=".05" value="-.85"></label>
+                <div class="aim-step-buttons">
+                  <button type="button" class="secondary" data-aim-axis="horizontal" data-aim-step="-1" data-d="leftward">← Left</button>
+                  <button type="button" class="secondary" data-aim-axis="horizontal" data-aim-step="1" data-d="rightward">Right →</button>
+                </div>
+              </div>
+              <div class="aim-adjustment">
+                <label><span data-d="vertical">Vertical aim</span><output id="aim-vertical-value"></output><input type="range" id="aim-vertical" min="-1.5" max="1.5" step=".05" value="-.50"></label>
+                <div class="aim-step-buttons">
+                  <button type="button" class="secondary" data-aim-axis="vertical" data-aim-step="-1" data-d="downward">↓ Lower</button>
+                  <button type="button" class="secondary" data-aim-axis="vertical" data-aim-step="1" data-d="upward">↑ Raise</button>
+                </div>
+              </div>
+            </div>
+            <figure id="beamsetter-preview" hidden>
+              <canvas id="beamsetter-preview-plot" width="520" height="184" role="img"></canvas>
+              <figcaption>
+                <div id="beamsetter-preview-caption"><span id="beam-target-legend"></span><span id="beamsetter-preview-state"></span></div>
+                <p id="beamsetter-preview-guide" class="diagnostic-readout-note" hidden></p>
+              </figcaption>
+            </figure>
+            <p id="beam-probe-position" class="diagnostic-readout-note"></p>
+          </section>
+          <section class="panel" id="beam-exercise-panel">
+            <p class="diagnostic-profile" id="lamp-progress"></p>
+            <h2 id="headlamp-step"></h2>
+            <p id="headlamp-hint" role="status"></p>
+            <p id="headlamp-method" hidden></p>
+            <div class="diagnostic-form">
+              <label><span data-d="aimingMethod">Aiming method</span><select id="aiming-method"><option value="split" data-d="splitMethod">Left on beamsetter, right on wall</option><option value="rig" data-d="rigBoth">Beamsetter for both</option><option value="wall" data-d="wallBoth">Wall test for both</option></select></label>
+              <label><span data-d="lampType">Headlamp</span><select id="lamp-type"></select></label>
+              <label><span data-d="distance">Wall distance</span><select id="wall-distance"><option value="5">5 m</option><option value="7.62" selected>7.62 m</option><option value="10">10 m</option></select></label>
+            </div>
+            <details class="diagnostic-reset" id="wall-target-notes" hidden>
+              <summary data-d="wallTargetNotes">Wall markings and targets</summary>
+              <p data-d="wallMarks"></p>
+              <p id="wall-training-values"></p>
+              <p><a href="https://www.hella.com/techworld/en/technical/automotive-lighting/headlight-adjustment/" data-d="wallMarkingGuide">HELLA wall layout</a> · <a href="https://eur-lex.europa.eu/eli/reg/2019/57/oj/eng" data-d="wallRegulation">UN Regulation No. 48, § 6.2.6.1.1</a></p>
+            </details>
+            <p id="beam-coupling"></p>
+            <div id="headlamp-actions" class="diagnostic-workflow"></div>
+            <button type="button" class="secondary diagnostic-reset" id="reset-headlamp" data-d="reset">Reset exercise</button>
+            <p data-d="beamNote">Training photometry. Lamp design and aiming targets vary by vehicle.</p>
+          </section>
+        </div>
+      </aside>
+    </div>
+    <details class="references service-only" id="machine-keyboard" hidden>
+      <summary data-t="keyboardControls">Keyboard controls</summary>
+      <div id="keyboard-balancer" class="keyboard-actions"></div>
+      <div id="keyboard-lift"></div>
+      <div class="keyboard-actions" id="keyboard-changer">
+        <button id="changer-load" type="button" data-t="changerLoad">Load wheel</button>
+        <button id="changer-break" type="button" data-t="changerBreak">Break beads</button>
+        <button id="changer-clamp" type="button" data-t="changerClamp">Clamp rim</button>
+        <button id="changer-paste" type="button" data-t="changerPaste">Lubricate bead</button>
+        <button id="changer-turn" type="button" data-t="changerUpper">Demount upper bead</button>
+      </div>
+    </details>
+    <details class="references" id="workshop-references">
+      <summary data-t="references">References and technical data</summary>
+      <h3 data-t="vehicleReferences">Vehicles</h3>
+      <ul>
+        <li><a href="https://www.tesla.com/ownersmanual/2017_2023_model3/en_us/GUID-56562137-FC31-4110-A13C-9A9FC6657BF0.html" data-t="teslaDimensions">Tesla Model 3 (2017–2023) · Dimensions</a></li>
+        <li><a href="https://service.tesla.com/docs/Model3/ServiceManual/en-us/" data-t="teslaManual">Tesla Model 3 (2017–2023) · Service manual</a></li>
+        <li><a href="https://service.tesla.com/docs/Model3/ServiceManual/en-us/GUID-A0CF7C9C-B57C-42B3-B8ED-A95758D026E9.html" data-t="liftProcedure">Tesla Model 3 two-post lift procedure</a></li>
+        <li><a href="https://newsroom.porsche.com/dam/jcr%3A52d0f295-c4e1-4c00-b753-afb18b1a4de6/PAG_911er_Generationen_Uebersicht_EN.pdf" data-t="porscheSpecifications">Porsche 911 · Specifications by generation (PDF)</a></li>
+      </ul>
+      <h3 data-t="equipmentReferences">Workshop equipment</h3>
+      <p data-t="referenceText">The cabinet and fixtures draw on the B800P. The training cycle uses the S400’s 200 rpm and 8-second timing. The supplied Ukrainian lift has 1,800 mm of carriage travel.</p>
+      <ul>
+        <li><a href="https://www.johnbean.com/au/wheel-balancers/b-800p/" data-t="johnbean">John Bean B800P cabinet and fixtures</a> · <a href="https://www.johnbean.com/la-en/wp-content/uploads/2022/09/sswb22162-B800P-LA-en-WEB.pdf" data-t="balancerBrochure">John Bean B800P · Datasheet (PDF)</a></li>
+        <li><a href="https://www.bendpak.com/media/wysiwyg/Manuals/Ranger_R980AT-XR_TireChanger_5900158_InstallOper_Manual_G1-12_2024.pdf" data-t="changerReference">Ranger swing-arm tyre changer manual</a></li>
+        <li><a href="https://www.hella-gutmann.com/fileadmin/00_HGS_Bilder/X_Downloads/downloads_instructions/downloads_manuals_quickstarts/Multilingual/SEG_V_Manual_ml.pdf" data-t="beamsetterManual">HELLA SEG V · Operating manual (PDF)</a></li>
+        <li><span data-t="s400">S400 User Manual, §§ 1.1 and 4</span></li>
+        <li><span data-t="twf">TWF-50TPL-1850 Manual, §§ 2.1 and 7.2</span></li>
+        <li><span data-t="liftSource">Lift model supplied for the Service Lab · Lift - Ukrainian.blend</span></li>
+      </ul>
+      <h3 data-t="modelCredits">3D model credits</h3>
+      <ul>
+        <li><a href="https://sketchfab.com/3d-models/tesla-2018-model-3-5ef9b845aaf44203b6d04e2c677e444f" data-t="vehicleCredit">Tesla 2018 Model 3 by Ameer Studio</a> · <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a></li>
+        <li><a href="https://grab3d.com/models/vehicles/alloy-wheel/" data-t="wheelCredit">Grab3D alloy wheel</a> · <a href="https://creativecommons.org/publicdomain/zero/1.0/">CC0 1.0</a></li>
+      </ul>
+      <details id="lighting-references" hidden>
+        <summary data-d="references">Headlamp references</summary>
+        <p data-d="referenceNote">The supplied images illustrate wall marking and beam appearance. The infographic’s ranges are illustrative.</p>
+        <div class="diagnostic-reference-grid">
+          <figure><a href="diagnostic-references/lamp-types.webp"><img src="diagnostic-references/lamp-types.webp" loading="lazy" alt="Illustration comparing four headlamp types" data-d-alt="lampTypesImage"></a><figcaption>Engineering_school_9</figcaption></figure>
+          <figure><a href="https://auxito.com/blogs/news/headlight-adjustment-aiming-wall-chart"><img src="diagnostic-references/auxito-wall-layout.webp" loading="lazy" alt="AUXITO wall marking layout" data-d-alt="wallLayoutImage"></a><figcaption>AUXITO · <span data-d="wall">Aiming wall</span></figcaption></figure>
+          <figure><a href="diagnostic-references/auxito-dipped-road.webp"><img src="diagnostic-references/auxito-dipped-road.webp" loading="lazy" alt="AUXITO dipped-beam road photograph" data-d-alt="dippedRoadImage"></a><figcaption>AUXITO · <span data-d="low">Dipped beam</span></figcaption></figure>
+          <figure><a href="diagnostic-references/auxito-main-road.webp"><img src="diagnostic-references/auxito-main-road.webp" loading="lazy" alt="AUXITO main-beam road photograph" data-d-alt="mainRoadImage"></a><figcaption>AUXITO · <span data-d="high">Main beam</span></figcaption></figure>
+        </div>
+        <p><a href="https://alignmyheadlights.com/" data-d="wallGuide">Wall marking calculator</a> · <a href="https://www.hella.com/techworld/en/technical/automotive-lighting/headlight-adjustment/" data-d="hella">HELLA beamsetter procedure</a></p>
+        <section class="panel measured-reference">
+          <h2 data-d="measuredDipped">Measured dipped-beam samples</h2>
+          <p id="measured-note" data-d="measuredNote">Median intensities on the vertical centerline from a U.S. lamp sample. Lux is calculated on the wall at the selected distance.</p>
+          <details id="photometry">
+            <summary data-d="wallPlot">Light distribution plots</summary>
+            <div id="wall-view" hidden>
+              <div class="wall-tools"><label><span data-d="photometry">Photometry</span> <select id="wall-source"><option value="measured" data-d="fleetDipped">Measured dipped beams</option><option value="training" data-d="trainingRig">Training rig</option></select></label><button type="button" class="secondary" id="pin-beam" data-d="pin">Pin this beam</button></div>
+              <div id="wall-pair"><figure id="current-beam"><figcaption id="current-caption"></figcaption><canvas id="beam-wall" width="840" height="298" tabindex="0" aria-label="Select a point to measure illuminance"></canvas></figure>
+              <figure id="reference-beam" hidden><figcaption id="reference-caption"></figcaption><canvas id="beam-reference" width="840" height="298" tabindex="0" aria-label="Select a point to measure illuminance"></canvas></figure></div>
+              <div class="diagnostic-caption"><span id="wall-caption"></span><span id="wall-scale"></span></div>
+            </div>
+          </details>
+          <table class="diagnostic-table"><thead><tr><th scope="col" data-d="verticalAngle">Vertical angle</th><th scope="col" data-d="halogen">Halogen</th><th scope="col" data-d="led">LED</th></tr></thead><tbody id="measured-values"></tbody></table>
+          <p><a href="https://deepblue.lib.umich.edu/bitstream/handle/2027.42/154777/UMTRI-2019-5.pdf?sequence=1" data-d="measuredTables">UMTRI-2019-5 · Tables 1–2</a></p>
+        </section>
+      </details>
+    </details>
+    <section class="references institution-section" aria-labelledby="institution-title">
+      <h2 id="institution-title" data-t="institution">Educational institution</h2>
+      <details>
+        <summary><img src="college.svg" alt="" width="42" height="42"><span data-t="college">Zhytomyr Agrotechnical Professional College</span></summary>
+        <div class="institution-body">
+          <a href="https://zhatk.zt.ua/" data-t="college">Zhytomyr Agrotechnical Professional College</a>
+          <a href="https://zhatk.zt.ua/osvitnij-proczes/kafedri/kafedra-avtomobilnij-transport/"><img src="department.png" loading="lazy" alt="" width="42" height="42"><span data-t="department">Department of Automotive Transport</span></a>
+        </div>
+      </details>
+    </section>
+  </main>
+</body>
+</html>
